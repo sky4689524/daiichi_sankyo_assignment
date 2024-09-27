@@ -48,7 +48,3 @@ jobs:
       - name: Run Pytest tests
         run: |
           pytest .
-
-      - name: Stop and remove Docker containers
-        if: always()
-        run: docker-compose down
