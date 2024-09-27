@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+  
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -21,22 +22,17 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Set up Docker
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker.io
-          sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -Po '(?<=tag_name": ")[^"]*')" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version  # Check the installed version
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Build and start Docker Compose services
-        run: |
-          docker-compose up --build -d
+      - uses: adambirds/docker-compose-action@v1.5.0
+        with:
+          compose-file: "docker-compose.yml"  # Path to your docker-compose.yml file
+          up-flags: "--build -d"  # Build and run in detached mode
+          down-flags: "--volumes"  # Remove volumes when tearing down
+          test-container: "business-web"  # Your Flask app container or service name from docker-compose.yml
 
       - name: Wait for Postgres
         run: |
