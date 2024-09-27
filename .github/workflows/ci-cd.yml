@@ -17,21 +17,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - uses: adambirds/docker-compose-action@v1.5.0
         with:
-          compose-file: "docker-compose.yml" 
-          up-flags: "--build -d" 
-          down-flags: "--volumes" 
-          test-container: "business-web"  
-          test-command: |
-            # Wait for PostgreSQL to be ready
-            until pg_isready -U postgres -h business-db; do
-              echo "Waiting for PostgreSQL..."
-              sleep 2
-            done;
-            
-            # Run yoyo migrations
-            yoyo apply artifacts/migrations;
-            
-            # Run tests with pytest
-            pytest .
+          compose-file: "docker-compose.yml"  # Path to your docker-compose.yml file
+          up-flags: "--build -d"  # Build and run in detached mode
+          down-flags: "--volumes"  # Remove volumes when tearing down
+          test-container: "business-web"  # Your Flask app container or service name from docker-compose.yml
+
+      - name: Wait for Postgres
+        run: |
+          until docker exec business-db pg_isready -U postgres; do
+            echo "Waiting for database to be ready..."
+            sleep 2
+          done
+
+      - name: Run yoyo migrations
+        run: |
+          yoyo apply artifacts/migrations
+
+      - name: Run Pytest tests
+        run: |
+          pytest .
