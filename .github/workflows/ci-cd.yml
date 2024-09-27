@@ -3,10 +3,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - KAN-4-refactor-testing
+      - main
   pull_request:
     branches:
-      - KAN-4-refactor-testing
+      - main
 
 jobs:
   build-and-test:
@@ -29,10 +29,10 @@ jobs:
 
       - uses: adambirds/docker-compose-action@v1.5.0
         with:
-          compose-file: "docker-compose.yml"  # Path to your docker-compose.yml file
-          up-flags: "--build -d"  # Build and run in detached mode
-          down-flags: "--volumes"  # Remove volumes when tearing down
-          test-container: "business-web"  # Your Flask app container or service name from docker-compose.yml
+          compose-file: "docker-compose.yml"
+          up-flags: "--build -d" 
+          down-flags: "--volumes" 
+          test-container: "business-web"  
 
       - name: Wait for Postgres
         run: |
