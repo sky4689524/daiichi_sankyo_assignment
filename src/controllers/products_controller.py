@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, current_app
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from psycopg2 import OperationalError
+from ..utils.token_decorators import token_required, role_required
 
 # Create a new blueprint for products
 products_blueprint = Blueprint('products', __name__)
@@ -31,6 +32,8 @@ def get_db_connection():
 
 
 @products_blueprint.route('/api/v1/interactions/products', methods=['GET'])
+@token_required  # Validate the JWT token
+@role_required('admin')  # Only allow admin role access
 def get_interactions_per_product():
     """
     Fetches and returns the count of interactions for each product, grouped by customer type.

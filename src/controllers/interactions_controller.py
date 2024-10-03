@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, current_app
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from psycopg2 import OperationalError, ProgrammingError
+from ..utils.token_decorators import token_required, role_required
 
 # Create a new blueprint for interactions
 interactions_blueprint = Blueprint('interactions', __name__)
@@ -31,6 +32,8 @@ def get_db_connection():
 
 
 @interactions_blueprint.route('/api/v1/interactions/<int:customer_id>', methods=['GET'])
+@token_required  # Validate the JWT token
+@role_required('admin')  # Only allow admin role access
 def get_customer_interactions(customer_id):
     """
     Retrieve and return the interaction counts for a specific customer.
